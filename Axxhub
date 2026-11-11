@@ -1,0 +1,1318 @@
+local SoundService = game:GetService("SoundService")
+
+-- MÚSICA: suena desde que ejecutas el script
+local music = Instance.new("Sound")
+music.Name = "AxxIntroMusic"
+music.SoundId = "rbxassetid://92950955480719"
+music.Volume = 0.7
+music.Looped = false
+music.Parent = SoundService
+music:Play()
+
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+local INTRO_DELAY = 3 -- segundos antes de mostrar la intro
+
+do -- INTRO AXX HUB
+    task.wait(INTRO_DELAY)
+
+    local Players = game:GetService("Players")
+    local TweenService = game:GetService("TweenService")
+    local RunService = game:GetService("RunService")
+    local lp = Players.LocalPlayer
+
+    local okHui, hui = pcall(function() return gethui and gethui() end)
+    local parent = (okHui and hui) or lp:WaitForChild("PlayerGui")
+
+    local C_PURPLE = Color3.fromHex("#7c3aed")
+    local C_PINK   = Color3.fromHex("#f472b6")
+    local C_CYAN   = Color3.fromHex("#22d3ee")
+    local rng = Random.new()
+
+    local function snd(id, vol, pitch)
+        pcall(function()
+            local s = Instance.new("Sound")
+            s.SoundId = "rbxassetid://" .. id
+            s.Volume = vol or 0.6
+            s.PlaybackSpeed = pitch or 1
+            s.Parent = SoundService
+            s:Play()
+            task.delay(6, function() s:Destroy() end)
+        end)
+    end
+
+    local function tw(obj, t, props, style, dir)
+        local tween = TweenService:Create(obj, TweenInfo.new(t, style or Enum.EasingStyle.Quad, dir or Enum.EasingDirection.Out), props)
+        tween:Play()
+        return tween
+    end
+
+    local function colorSeq()
+        return ColorSequence.new({
+            ColorSequenceKeypoint.new(0, C_PURPLE),
+            ColorSequenceKeypoint.new(0.5, C_PINK),
+            ColorSequenceKeypoint.new(1, C_CYAN),
+        })
+    end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "AxxHub_Intro"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.DisplayOrder = 10000
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.Parent = parent
+
+    -- Fondo
+    local bg = Instance.new("Frame")
+    bg.Size = UDim2.fromScale(1, 1)
+    bg.BackgroundColor3 = Color3.fromHex("#030308")
+    bg.BackgroundTransparency = 1
+    bg.BorderSizePixel = 0
+    bg.ClipsDescendants = true
+    bg.Parent = gui
+
+    local bgGrad = Instance.new("UIGradient")
+    bgGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromHex("#1a0b2e")),
+        ColorSequenceKeypoint.new(0.5, Color3.fromHex("#030308")),
+        ColorSequenceKeypoint.new(1, Color3.fromHex("#0b1a2e")),
+    })
+    bgGrad.Rotation = 45
+    bgGrad.Parent = bg
+
+    -- Partículas que suben
+    for i = 1, 40 do
+        local p = Instance.new("Frame")
+        local sz = rng:NextInteger(2, 7)
+        p.Size = UDim2.fromOffset(sz, sz)
+        p.Position = UDim2.fromScale(rng:NextNumber(), 1.05)
+        p.BackgroundColor3 = (i % 3 == 0) and C_PINK or ((i % 2 == 0) and C_PURPLE or C_CYAN)
+        p.BackgroundTransparency = 1
+        p.BorderSizePixel = 0
+        p.Parent = bg
+        Instance.new("UICorner", p).CornerRadius = UDim.new(1, 0)
+        task.delay(rng:NextNumber(0, 2), function()
+            if not p.Parent then return end
+            tw(p, 0.4, {BackgroundTransparency = 0.3})
+            tw(p, rng:NextNumber(3, 5), {Position = UDim2.fromScale(rng:NextNumber(), rng:NextNumber(-0.1, 0.4))}, Enum.EasingStyle.Sine)
+            task.delay(2.5, function() if p.Parent then tw(p, 1, {BackgroundTransparency = 1}) end end)
+        end)
+    end
+
+    -- Anillo giratorio con degradado
+    local ring = Instance.new("Frame")
+    ring.AnchorPoint = Vector2.new(0.5, 0.5)
+    ring.Position = UDim2.fromScale(0.5, 0.5)
+    ring.Size = UDim2.fromOffset(0, 0)
+    ring.BackgroundTransparency = 1
+    ring.Parent = bg
+    Instance.new("UICorner", ring).CornerRadius = UDim.new(1, 0)
+    local ringStroke = Instance.new("UIStroke")
+    ringStroke.Thickness = 3
+    ringStroke.Color = Color3.new(1, 1, 1)
+    ringStroke.Transparency = 1
+    ringStroke.Parent = ring
+    local ringGrad = Instance.new("UIGradient")
+    ringGrad.Color = colorSeq()
+    ringGrad.Parent = ringStroke
+
+    -- Contenedor central
+    local center = Instance.new("Frame")
+    center.AnchorPoint = Vector2.new(0.5, 0.5)
+    center.Position = UDim2.fromScale(0.5, 0.5)
+    center.Size = UDim2.fromOffset(800, 260)
+    center.BackgroundTransparency = 1
+    center.Parent = bg
+
+    local scale = Instance.new("UIScale")
+    scale.Scale = 0.1
+    scale.Parent = center
+
+    -- Título
+    local title = Instance.new("TextLabel")
+    title.AnchorPoint = Vector2.new(0.5, 0.5)
+    title.Position = UDim2.new(0.5, 0, 0.35, 0)
+    title.Size = UDim2.new(1, 0, 0, 110)
+    title.BackgroundTransparency = 1
+    title.Text = ""
+    title.TextColor3 = Color3.new(1, 1, 1)
+    title.Font = Enum.Font.GothamBlack
+    title.TextSize = 84
+    title.Parent = center
+
+    local tg = Instance.new("UIGradient")
+    tg.Color = colorSeq()
+    tg.Parent = title
+
+    -- Línea
+    local line = Instance.new("Frame")
+    line.AnchorPoint = Vector2.new(0.5, 0.5)
+    line.Position = UDim2.new(0.5, 0, 0.62, 0)
+    line.Size = UDim2.fromOffset(0, 3)
+    line.BackgroundColor3 = Color3.new(1, 1, 1)
+    line.BorderSizePixel = 0
+    line.Parent = center
+    Instance.new("UICorner", line).CornerRadius = UDim.new(1, 0)
+    local lg = tg:Clone()
+    lg.Parent = line
+
+    -- "Welcome"
+    local wrap = Instance.new("Frame")
+    wrap.AnchorPoint = Vector2.new(0.5, 0.5)
+    wrap.Position = UDim2.new(0.5, 0, 0.82, 0)
+    wrap.Size = UDim2.fromOffset(500, 50)
+    wrap.BackgroundTransparency = 1
+    wrap.Parent = center
+
+    local lay = Instance.new("UIListLayout")
+    lay.FillDirection = Enum.FillDirection.Horizontal
+    lay.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    lay.VerticalAlignment = Enum.VerticalAlignment.Center
+    lay.Padding = UDim.new(0, 3)
+    lay.Parent = wrap
+
+    local widths = { W = 42, m = 34 }
+    local letters = {}
+    local word = "Welcome"
+    for i = 1, #word do
+        local ch = string.sub(word, i, i)
+        local cell = Instance.new("Frame")
+        cell.Size = UDim2.fromOffset(widths[ch] or 26, 50)
+        cell.BackgroundTransparency = 1
+        cell.LayoutOrder = i
+        cell.Parent = wrap
+
+        local l = Instance.new("TextLabel")
+        l.Size = UDim2.fromScale(1, 1)
+        l.Position = UDim2.fromOffset(0, 25)
+        l.BackgroundTransparency = 1
+        l.Text = ch
+        l.TextColor3 = Color3.fromHex("#f8fafc")
+        l.Font = Enum.Font.GothamBold
+        l.TextSize = 38
+        l.TextTransparency = 1
+        l.Parent = cell
+
+        local ls = Instance.new("UIStroke")
+        ls.Color = C_PURPLE
+        ls.Thickness = 1.5
+        ls.Transparency = 1
+        ls.Parent = l
+
+        letters[i] = { l, ls }
+    end
+
+    -- Barra de progreso
+    local barBg = Instance.new("Frame")
+    barBg.AnchorPoint = Vector2.new(0.5, 0.5)
+    barBg.Position = UDim2.new(0.5, 0, 0.99, 0)
+    barBg.Size = UDim2.fromOffset(320, 5)
+    barBg.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+    barBg.BackgroundTransparency = 1
+    barBg.BorderSizePixel = 0
+    barBg.Parent = center
+    Instance.new("UICorner", barBg).CornerRadius = UDim.new(1, 0)
+
+    local barFill = Instance.new("Frame")
+    barFill.Size = UDim2.fromScale(0, 1)
+    barFill.BackgroundColor3 = Color3.new(1, 1, 1)
+    barFill.BackgroundTransparency = 1
+    barFill.BorderSizePixel = 0
+    barFill.Parent = barBg
+    Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
+    local bfg = tg:Clone()
+    bfg.Parent = barFill
+
+    -- Flash
+    local flash = Instance.new("Frame")
+    flash.Size = UDim2.fromScale(1, 1)
+    flash.BackgroundColor3 = Color3.new(1, 1, 1)
+    flash.BorderSizePixel = 0
+    flash.ZIndex = 20
+    flash.Parent = gui
+
+    -- Ondas de choque
+    local function shockwave(color, maxSize, dur)
+        local r = Instance.new("Frame")
+        r.AnchorPoint = Vector2.new(0.5, 0.5)
+        r.Position = UDim2.fromScale(0.5, 0.5)
+        r.Size = UDim2.fromOffset(20, 20)
+        r.BackgroundTransparency = 1
+        r.Parent = bg
+        Instance.new("UICorner", r).CornerRadius = UDim.new(1, 0)
+        local s = Instance.new("UIStroke")
+        s.Color = color
+        s.Thickness = 4
+        s.Transparency = 0.2
+        s.Parent = r
+        tw(r, dur, {Size = UDim2.fromOffset(maxSize, maxSize)}, Enum.EasingStyle.Quint)
+        tw(s, dur, {Transparency = 1, Thickness = 1})
+        task.delay(dur + 0.1, function() r:Destroy() end)
+    end
+
+    -- Temblor
+    local function shake(power, dur)
+        task.spawn(function()
+            local t0 = os.clock()
+            while os.clock() - t0 < dur do
+                local k = 1 - (os.clock() - t0) / dur
+                center.Position = UDim2.new(0.5, rng:NextInteger(-power, power) * k, 0.5, rng:NextInteger(-power, power) * k)
+                task.wait()
+            end
+            center.Position = UDim2.fromScale(0.5, 0.5)
+        end)
+    end
+
+    -- Animación continua
+    local rot, t = 0, 0
+    local waving = false
+    local conn = RunService.RenderStepped:Connect(function(dt)
+        rot = (rot + dt * 120) % 360
+        t += dt
+        tg.Rotation = rot
+        ringGrad.Rotation = -rot * 1.5
+        bgGrad.Rotation = 45 + math.sin(t) * 15
+        if waving then
+            for i, pair in ipairs(letters) do
+                pair[1].Position = UDim2.fromOffset(0, math.sin(t * 5 + i * 0.7) * 4)
+            end
+        end
+    end)
+
+    -- ===== Secuencia =====
+    snd("9118823100", 0.5, 0.9)
+    tw(bg, 0.35, {BackgroundTransparency = 0})
+    tw(flash, 0.6, {BackgroundTransparency = 1})
+    tw(scale, 0.9, {Scale = 1}, Enum.EasingStyle.Back)
+    shockwave(C_PURPLE, 900, 1.1)
+
+    task.wait(0.3)
+    tw(ring, 1.0, {Size = UDim2.fromOffset(470, 470)}, Enum.EasingStyle.Back)
+    tw(ringStroke, 0.8, {Transparency = 0.35})
+
+    task.wait(0.2)
+    local full = "Axx Hub"
+    for i = 1, #full do
+        title.Text = string.sub(full, 1, i)
+        task.wait(0.07)
+    end
+
+    -- Impacto del título
+    snd("9114663715", 0.4, 1.1)
+    shockwave(C_CYAN, 700, 0.9)
+    shake(6, 0.35)
+    tw(scale, 0.12, {Scale = 1.1}, Enum.EasingStyle.Quad)
+    task.wait(0.12)
+    tw(scale, 0.4, {Scale = 1}, Enum.EasingStyle.Elastic)
+
+    -- Línea + barra de progreso
+    tw(line, 0.7, {Size = UDim2.fromOffset(420, 3)}, Enum.EasingStyle.Quint)
+    tw(barBg, 0.4, {BackgroundTransparency = 0.3})
+    tw(barFill, 0.4, {BackgroundTransparency = 0})
+    tw(barFill, 2.6, {Size = UDim2.fromScale(1, 1)}, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    task.wait(0.35)
+
+    -- Welcome letra por letra
+    for _, pair in ipairs(letters) do
+        local l, ls = pair[1], pair[2]
+        tw(l, 0.45, {TextTransparency = 0, Position = UDim2.fromOffset(0, 0)}, Enum.EasingStyle.Back)
+        tw(ls, 0.45, {Transparency = 0.35})
+        task.wait(0.08)
+    end
+    snd("9045889306", 0.3, 1.2)
+    shockwave(C_PINK, 600, 0.8)
+    task.wait(0.35)
+    waving = true
+
+    -- Brillo recorriendo el título
+    task.spawn(function()
+        for _ = 1, 2 do
+            tg.Offset = Vector2.new(-1, 0)
+            tw(tg, 0.9, {Offset = Vector2.new(1, 0)}, Enum.EasingStyle.Sine)
+            task.wait(1)
+        end
+    end)
+
+    task.wait(1.6)
+
+    -- Salida
+    waving = false
+    tw(music, 0.8, {Volume = 0})
+    snd("9114663715", 0.3, 0.8)
+    tw(scale, 0.7, {Scale = 1.5}, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+    tw(title, 0.55, {TextTransparency = 1})
+    tw(line, 0.5, {BackgroundTransparency = 1})
+    tw(barBg, 0.4, {BackgroundTransparency = 1})
+    tw(barFill, 0.4, {BackgroundTransparency = 1})
+    tw(ringStroke, 0.5, {Transparency = 1})
+    tw(ring, 0.7, {Size = UDim2.fromOffset(900, 900)}, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+    for _, pair in ipairs(letters) do
+        tw(pair[1], 0.5, {TextTransparency = 1})
+        tw(pair[2], 0.5, {Transparency = 1})
+    end
+    tw(bg, 0.8, {BackgroundTransparency = 1})
+    task.wait(0.85)
+    conn:Disconnect()
+    music:Stop()
+    music:Destroy()
+    gui:Destroy()
+end
+
+-- ============================================================
+--  CARGA DE WINDUI (después de la intro)
+-- ============================================================
+local loadOk, WindUI = pcall(function()
+    return loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/download/1.6.66/main.lua"))()
+end)
+if not loadOk or not WindUI then
+    warn("[AxxHub] WindUI NO se cargó:", WindUI)
+    return
+end
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local camera = workspace.CurrentCamera
+workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+    if workspace.CurrentCamera then camera = workspace.CurrentCamera end
+end)
+
+pcall(function()
+    WindUI:AddTheme({
+        Name = "Crimson",
+        Accent = Color3.fromHex("#DC143C"),
+        Dialog = Color3.fromHex("#1a0a0e"),
+        Outline = Color3.fromHex("#DC143C"),
+        Text = Color3.fromHex("#FFFFFF"),
+        Placeholder = Color3.fromHex("#8a6a70"),
+        Background = Color3.fromHex("#120709"),
+        Button = Color3.fromHex("#8B0A1E"),
+        Icon = Color3.fromHex("#ff8fa3"),
+    })
+end)
+
+local ACCENT  = Color3.fromHex("#7c3aed")
+local ACCENT2 = Color3.fromHex("#22d3ee")
+local SFX = { BOOM="9118823100", WHOOSH="9114663715", CLICK="9125401346", RISE="9045889306" }
+
+local function playSound(id, vol, pitch)
+    local s = Instance.new("Sound")
+    s.SoundId = "rbxassetid://" .. id
+    s.Volume = vol or 0.6
+    s.PlaybackSpeed = pitch or 1
+    s.Parent = SoundService
+    s:Play()
+    task.delay(6, function() if s then s:Destroy() end end)
+end
+
+local Persist = {
+    Items = {},
+    Order = {},
+    Loading = false,
+    Ready = false,
+    Data = nil,
+}
+Persist.Folder = "AxxHub_Configs"
+Persist.File = Persist.Folder .. "/autoload.json"
+
+pcall(function()
+    if isfolder and makefolder and not isfolder(Persist.Folder) then
+        makefolder(Persist.Folder)
+    end
+    if isfile and readfile and isfile(Persist.File) then
+        local decoded = HttpService:JSONDecode(readfile(Persist.File))
+        if type(decoded) == "table" then
+            Persist.Data = decoded
+        end
+    end
+end)
+
+local function persistSave()
+    if not Persist.Ready or Persist.Loading or not writefile then return end
+    local values = {}
+    for key, item in pairs(Persist.Items) do
+        local okGet, value = pcall(item.Get)
+        if okGet and value ~= nil then
+            values[key] = value
+        end
+    end
+    local okEnc, encoded = pcall(function()
+        return HttpService:JSONEncode({ Values = values })
+    end)
+    if okEnc then
+        pcall(writefile, Persist.File, encoded)
+    end
+end
+
+local function persist(key, get, set)
+    if not Persist.Items[key] then
+        Persist.Order[#Persist.Order + 1] = key
+    end
+    Persist.Items[key] = { Get = get, Set = set }
+end
+
+local function persistToggle(key, element, get)
+    persist(key, get, function(v)
+        if type(v) == "boolean" and element then
+            pcall(function() element:Set(v) end)
+        end
+    end)
+end
+
+local function persistSlider(key, element, get)
+    persist(key, get, function(v)
+        if type(v) == "number" and element then
+            pcall(function() element:Set(v) end)
+        end
+    end)
+end
+
+local function persistDropdown(key, element, get, apply)
+    persist(key, get, function(v)
+        if v == nil then return end
+        if apply then apply(v) end
+        if element then
+            pcall(function() element:Select(v) end)
+        end
+    end)
+end
+
+local function persistColor(key, element, get, apply)
+    persist(key, function()
+        local c = get()
+        return { R = c.R, G = c.G, B = c.B }
+    end, function(v)
+        if type(v) ~= "table" then return end
+        local c = Color3.new(v.R or 1, v.G or 1, v.B or 1)
+        apply(c)
+        if element then
+            pcall(function() element:Update(c) end)
+        end
+    end)
+end
+
+local winOk, Window = pcall(function()
+    return WindUI:CreateWindow({
+        Title = "Axx Hub",
+        Theme = "Dark",
+        Author = "By Axx",
+        Acrylic = false,
+        Transparent = false,
+        NewElements = true,
+        Background = "rbxthumb://type=Asset&id=122217156545284&w=420&h=420",
+        BackgroundImageTransparency = 0.35,
+        OpenButton = {
+            Title = " Axx Hub",
+            Icon = "rbxthumb://type=Asset&id=118232139384203&w=420&h=420",
+            IconSize = 9, CornerRadius = UDim.new(1), StrokeThickness = 2,
+            Enabled = true, Draggable = true, Scale = 0.9,
+            Color = ColorSequence.new(Color3.fromHex("#110070"), Color3.fromHex("#300364")),
+        },
+        Topbar = { Height = 44, ButtonsType = "Default" },
+    })
+end)
+
+if not winOk or not Window then
+    warn("[AxxHub] CreateWindow falló:", Window)
+    return
+end
+
+local MainSection   = Window:Section({ Title = "Principal", Opened = true })
+local ExtrasSection = Window:Section({ Title = "Extras",    Opened = true })
+
+local tabAim     = MainSection:Tab({ Title = "Aimlock",  Icon = "solar:target-bold" })
+local tabESP     = MainSection:Tab({ Title = "ESP",      Icon = "solar:eye-bold" })
+local tabCheats  = MainSection:Tab({ Title = "Tramposo", Icon = "solar:bolt-bold" })
+local tabBotones = ExtrasSection:Tab({ Title = "Botones", Icon = "solar:gamepad-bold" })
+local tabMusic   = ExtrasSection:Tab({ Title = "Música",  Icon = "solar:music-note-bold" })
+local tabSky     = ExtrasSection:Tab({ Title = "Cielos",  Icon = "solar:cloud-bold" })
+local tabConfig  = ExtrasSection:Tab({ Title = "Config",  Icon = "solar:settings-bold" })
+
+local AxxState = {
+    Aim    = { Enabled=false, FOV=200, Smooth=0.35, Target="Auto (Más cercano)", Part="Head", TeamCheck=true, MaxDist=5000 },
+    ESP    = { Enabled=false, Color=Color3.fromRGB(255,255,255), Glow=true, Lines=false, TeamCheck=true, MaxDist=1500 },
+    Cheats = { Speed=false, SpeedValue=16, Jump=false, JumpValue=50, Fly=false, FlySpeed=50, NoClip=false, InfJump=false },
+}
+local AxxToggles = {}
+
+local function estaEnLobby()
+    local char = player.Character
+    if not char then return true end
+    if char:FindFirstChildOfClass("ForceField") then return true end
+    if player.Team then
+        local tName = string.lower(player.Team.Name)
+        if string.find(tName, "lobby")
+            or string.find(tName, "spectat")
+            or string.find(tName, "espectador")
+            or string.find(tName, "menu")
+            or string.find(tName, "dead") then
+            return true
+        end
+    end
+    return false
+end
+
+local function isEnemy(targetPlayer)
+    if targetPlayer == player then return false end
+    if player.Team ~= nil and targetPlayer.Team ~= nil then
+        return player.Team ~= targetPlayer.Team
+    end
+    local pAttr = player:GetAttribute("Team") or player:GetAttribute("team")
+    local tAttr = targetPlayer:GetAttribute("Team") or targetPlayer:GetAttribute("team")
+    if pAttr ~= nil and tAttr ~= nil then
+        return pAttr ~= tAttr
+    end
+    if player.TeamColor.Name ~= "White" and player.TeamColor.Name ~= "Medium stone grey" then
+        return player.TeamColor ~= targetPlayer.TeamColor
+    end
+    return true
+end
+
+local a = AxxState.Aim
+
+local function GetAimPart(character)
+    if not character then return nil end
+    local head = character:FindFirstChild(a.Part)
+    if head then return head end
+    return character:FindFirstChild("HumanoidRootPart")
+end
+
+local function isValidTarget(plr)
+    if not plr or plr == player then return false end
+    local char = plr.Character
+    if not char then return false end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum or hum.Health <= 0 then return false end
+    return GetAimPart(char) ~= nil
+end
+
+local function GetScreenCenter()
+    if not camera then return Vector2.zero end
+    local vs = camera.ViewportSize
+    return Vector2.new(vs.X / 2, vs.Y / 2)
+end
+
+local function DistanceFromCenter(worldPos)
+    if not camera then return math.huge end
+    local screenPos, onScreen = camera:WorldToViewportPoint(worldPos)
+    if not onScreen then return math.huge end
+    local center = GetScreenCenter()
+    return (center - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+end
+
+local function FindNearestEnemy(maxDist)
+    maxDist = maxDist or math.huge
+    if a.Target ~= "Auto (Más cercano)" then
+        local specificPlayer = Players:FindFirstChild(a.Target)
+        if specificPlayer and isValidTarget(specificPlayer) then
+            return specificPlayer
+        end
+        return nil
+    end
+    local bestPlayer, bestDist = nil, maxDist
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if isValidTarget(plr) and (not a.TeamCheck or isEnemy(plr)) then
+            local aimPart = GetAimPart(plr.Character)
+            local worldPos = aimPart.Position
+            local myChar = player.Character
+            if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+                local d3 = (myChar.HumanoidRootPart.Position - worldPos).Magnitude
+                if d3 <= a.MaxDist then
+                    local d = DistanceFromCenter(worldPos)
+                    if d < bestDist then
+                        bestDist = d
+                        bestPlayer = plr
+                    end
+                end
+            end
+        end
+    end
+    return bestPlayer
+end
+
+local function GetDropdownPlayers()
+    local list = { "Auto (Más cercano)" }
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player then table.insert(list, plr.Name) end
+    end
+    return list
+end
+
+tabAim:Section({ Title = "Aimbot", Icon = "solar:target-bold" })
+AxxToggles.Aim = tabAim:Toggle({
+    Title = "Aimbot",
+    Desc = "Aimlock automático a la cabeza",
+    Value = false,
+    Callback = function(v) a.Enabled = v end,
+})
+
+local TargetDropdown = tabAim:Dropdown({
+    Title = "Jugador a Lockear",
+    Desc = "Elige a quién apuntar o deja en Auto",
+    Values = GetDropdownPlayers(),
+    Value = "Auto (Más cercano)",
+    Callback = function(v) a.Target = v end,
+})
+
+Players.PlayerAdded:Connect(function()
+    task.wait(0.5)
+    pcall(function() TargetDropdown:Refresh(GetDropdownPlayers()) end)
+end)
+
+Players.PlayerRemoving:Connect(function(p)
+    task.wait(0.5)
+    pcall(function() TargetDropdown:Refresh(GetDropdownPlayers()) end)
+    if a.Target ~= "Auto (Más cercano)" and not Players:FindFirstChild(a.Target) then
+        a.Target = "Auto (Más cercano)"
+        pcall(function() TargetDropdown:Set("Auto (Más cercano)") end)
+    end
+end)
+
+local SliAimFOV = tabAim:Slider({
+    Title = "Aimbot FOV",
+    Desc = "Radio de enganche (px)",
+    Step = 10,
+    Value = { Min = 50, Max = 500, Default = 200 },
+    Callback = function(v) a.FOV = v end,
+})
+
+local SliAimSmooth = tabAim:Slider({
+    Title = "Aimbot Smooth",
+    Desc = "0 = instantáneo, 1 = lento",
+    Step = 0.05,
+    Value = { Min = 0, Max = 1, Default = 0.35 },
+    Callback = function(v) a.Smooth = v end,
+})
+
+local SliAimDist = tabAim:Slider({
+    Title = "Distancia Máx",
+    Step = 100,
+    Value = { Min = 100, Max = 5000, Default = 5000 },
+    Callback = function(v) a.MaxDist = v end,
+})
+
+local TogAimTeam = tabAim:Toggle({
+    Title = "Team Check",
+    Value = true,
+    Callback = function(v) a.TeamCheck = v end,
+})
+
+RunService.RenderStepped:Connect(function()
+    if not a.Enabled or not camera then return end
+    if estaEnLobby() then return end
+    local target = FindNearestEnemy(a.FOV)
+    if not target then return end
+    local aimPart = GetAimPart(target.Character)
+    if not aimPart then return end
+    local camPos = camera.CFrame.Position
+    local targetPos = aimPart.Position
+    local targetDir = (targetPos - camPos).Unit
+    local currentDir = camera.CFrame.LookVector
+    local smooth = math.clamp(a.Smooth, 0, 0.99)
+    local newDir = currentDir:Lerp(targetDir, 1 - smooth)
+    camera.CFrame = CFrame.lookAt(camPos, camPos + newDir)
+end)
+
+persistToggle("Aim_Enabled", AxxToggles.Aim, function() return AxxState.Aim.Enabled end)
+persistSlider("Aim_FOV", SliAimFOV, function() return AxxState.Aim.FOV end)
+persistSlider("Aim_Smooth", SliAimSmooth, function() return AxxState.Aim.Smooth end)
+persistSlider("Aim_MaxDist", SliAimDist, function() return AxxState.Aim.MaxDist end)
+persistToggle("Aim_TeamCheck", TogAimTeam, function() return AxxState.Aim.TeamCheck end)
+persist("Aim_Target", function() return AxxState.Aim.Target end, function(v)
+    if type(v) ~= "string" then return end
+    if v == "Auto (Más cercano)" or Players:FindFirstChild(v) then
+        AxxState.Aim.Target = v
+        pcall(function() TargetDropdown:Set(v) end)
+    else
+        AxxState.Aim.Target = "Auto (Más cercano)"
+    end
+end)
+
+local espState = AxxState.ESP
+
+local espFolder = Instance.new("Folder")
+espFolder.Name = "AxxESPFolder"
+local espScreen = Instance.new("ScreenGui")
+espScreen.Name = "AxxHub_ESP"
+espScreen.ResetOnSpawn = false
+espScreen.IgnoreGuiInset = true
+espScreen.DisplayOrder = 998
+espScreen.Parent = playerGui
+espFolder.Parent = espScreen
+
+local activeESPs = {}
+local tracerLines = {}
+
+local function cleanESP(p)
+    if activeESPs[p] then
+        if activeESPs[p].Highlight then
+            activeESPs[p].Highlight:Destroy()
+        end
+        activeESPs[p] = nil
+    end
+end
+
+tabESP:Section({ Title = "ESP Jugadores", Icon = "solar:eye-bold" })
+AxxToggles.ESP = tabESP:Toggle({
+    Title = "ESP Jugadores",
+    Desc = "Ver enemigos a través de paredes",
+    Value = false,
+    Callback = function(v) espState.Enabled = v end,
+})
+
+local ColESP = tabESP:Colorpicker({
+    Title = "Color del ESP",
+    Default = Color3.fromRGB(255,255,255),
+    Callback = function(c) espState.Color = c end,
+})
+
+tabESP:Section({ Title = "Filtros", Icon = "solar:filter-bold" })
+local TogESPGlow = tabESP:Toggle({
+    Title = "Mostrar Resplandor",
+    Value = true,
+    Callback = function(v) espState.Glow = v end,
+})
+
+local TogESPLines = tabESP:Toggle({
+    Title = "Mostrar Líneas",
+    Value = false,
+    Callback = function(v) espState.Lines = v end,
+})
+
+local TogESPTeam = tabESP:Toggle({
+    Title = "Team Check",
+    Value = true,
+    Callback = function(v) espState.TeamCheck = v end,
+})
+
+local SliESPDist = tabESP:Slider({
+    Title = "Distancia Máx",
+    Step = 50,
+    Value = { Min = 100, Max = 5000, Default = 1500 },
+    Callback = function(v) espState.MaxDist = v end,
+})
+
+task.spawn(function()
+    while task.wait(0.2) do
+        local lobby = estaEnLobby()
+        if espState.Enabled and not lobby then
+            local myChar = player.Character
+            local myHead = myChar and myChar:FindFirstChild("Head")
+            local myPos = myHead and myHead.Position
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= player then
+                    local char = p.Character
+                    if char
+                        and char:FindFirstChild("Humanoid")
+                        and char.Humanoid.Health > 0
+                        and char:FindFirstChild("Head")
+                        and (not espState.TeamCheck or isEnemy(p)) then
+                        local targetHead = char.Head
+                        local dist = myPos and (targetHead.Position - myPos).Magnitude or 0
+                        if dist <= espState.MaxDist then
+                            if activeESPs[p] and activeESPs[p].Char ~= char then cleanESP(p) end
+                            if not activeESPs[p] then
+                                local hl = Instance.new("Highlight")
+                                hl.Name = p.Name .. "_Glow"
+                                hl.FillTransparency = 1
+                                hl.OutlineTransparency = 0
+                                hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                                hl.Adornee = char
+                                hl.Parent = espFolder
+                                activeESPs[p] = { Highlight = hl, Char = char }
+                            end
+                            local obj = activeESPs[p]
+                            if obj.Highlight.Enabled ~= espState.Glow then
+                                obj.Highlight.Enabled = espState.Glow
+                            end
+                            if obj.Highlight.OutlineColor ~= espState.Color then
+                                obj.Highlight.OutlineColor = espState.Color
+                            end
+                        else
+                            cleanESP(p)
+                        end
+                    else
+                        cleanESP(p)
+                    end
+                end
+            end
+        else
+            for _, p in pairs(Players:GetPlayers()) do cleanESP(p) end
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not camera then return end
+    if not espState.Enabled or not espState.Lines or estaEnLobby() then
+        for _, tLine in pairs(tracerLines) do
+            if tLine.Visible then tLine.Visible = false end
+        end
+        return
+    end
+    local myChar = player.Character
+    local myPos = (myChar and myChar.PrimaryPart) and myChar.PrimaryPart.Position or camera.CFrame.Position
+    local centroX = camera.ViewportSize.X / 2
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= player then
+            local tLine = tracerLines[p]
+            if not tLine then
+                if Drawing then
+                    tLine = Drawing.new("Line")
+                    tLine.Thickness = 1.5
+                    tLine.Transparency = 1
+                    tLine.Visible = false
+                    tracerLines[p] = tLine
+                else
+                    break
+                end
+            end
+            local char = p.Character
+            local hrp = char and char.PrimaryPart
+            if hrp and (not espState.TeamCheck or isEnemy(p)) then
+                local hum = char:FindFirstChild("Humanoid")
+                if hum and hum.Health > 0 then
+                    local hrpPos, onScreen = camera:WorldToViewportPoint(hrp.Position)
+                    if onScreen then
+                        local dist = (myPos - hrp.Position).Magnitude
+                        if dist <= espState.MaxDist then
+                            tLine.From = Vector2.new(centroX, 0)
+                            tLine.To = Vector2.new(hrpPos.X, hrpPos.Y)
+                            if tLine.Color ~= espState.Color then tLine.Color = espState.Color end
+                            if not tLine.Visible then tLine.Visible = true end
+                            continue
+                        end
+                    end
+                end
+            end
+            if tLine and tLine.Visible then tLine.Visible = false end
+        end
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(p)
+    if tracerLines[p] then
+        pcall(function() tracerLines[p]:Remove() end)
+        tracerLines[p] = nil
+    end
+    cleanESP(p)
+end)
+
+persistToggle("ESP_Enabled", AxxToggles.ESP, function() return AxxState.ESP.Enabled end)
+persistToggle("ESP_Glow", TogESPGlow, function() return AxxState.ESP.Glow end)
+persistToggle("ESP_Lines", TogESPLines, function() return AxxState.ESP.Lines end)
+persistToggle("ESP_TeamCheck", TogESPTeam, function() return AxxState.ESP.TeamCheck end)
+persistSlider("ESP_MaxDist", SliESPDist, function() return AxxState.ESP.MaxDist end)
+persistColor("ESP_Color", ColESP, function() return AxxState.ESP.Color end, function(c) AxxState.ESP.Color = c end)
+
+local ch = AxxState.Cheats
+tabCheats:Section({ Title = "Movimiento", Icon = "solar:walking-bold" })
+
+local TogSpeed = tabCheats:Toggle({ Title="Speed", Value=false, Callback=function(v) ch.Speed = v end })
+local SliSpeed = tabCheats:Slider({ Title="Velocidad", Value={Min=16,Max=200,Default=50}, Callback=function(v) ch.SpeedValue = v end })
+local TogJump = tabCheats:Toggle({ Title="Jump Boost", Value=false, Callback=function(v) ch.Jump = v end })
+local SliJump = tabCheats:Slider({ Title="Salto", Value={Min=50,Max=300,Default=100}, Callback=function(v) ch.JumpValue = v end })
+local TogInfJump = tabCheats:Toggle({ Title="Infinite Jump", Value=false, Callback=function(v) ch.InfJump = v end })
+
+tabCheats:Section({ Title = "Vuelo & Noclip", Icon = "solar:wind-bold" })
+local TogFly = tabCheats:Toggle({ Title="Fly", Value=false, Callback=function(v)
+    ch.Fly = v
+    local char = player.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if v then
+        if hrp and hum then
+            hum.PlatformStand = true
+            local bv = Instance.new("BodyVelocity")
+            bv.Name = "AxxFlyBV"; bv.MaxForce = Vector3.new(1e9,1e9,1e9); bv.Velocity = Vector3.zero
+            bv.Parent = hrp
+            local bg = Instance.new("BodyGyro")
+            bg.Name = "AxxFlyBG"; bg.MaxTorque = Vector3.new(1e9,1e9,1e9); bg.P = 1e4; bg.D = 100; bg.CFrame = hrp.CFrame
+            bg.Parent = hrp
+        end
+    else
+        if hrp then
+            local bv = hrp:FindFirstChild("AxxFlyBV"); if bv then bv:Destroy() end
+            local bg = hrp:FindFirstChild("AxxFlyBG"); if bg then bg:Destroy() end
+        end
+        if hum then hum.PlatformStand = false end
+    end
+end })
+local SliFlySpeed = tabCheats:Slider({ Title="Velocidad Vuelo", Value={Min=10,Max=300,Default=50}, Callback=function(v) ch.FlySpeed = v end })
+local TogNoClip = tabCheats:Toggle({ Title="NoClip", Value=false, Callback=function(v) ch.NoClip = v end })
+
+AxxToggles.Speed = TogSpeed
+AxxToggles.Fly = TogFly
+
+UserInputService.JumpRequest:Connect(function()
+    if ch.InfJump then
+        local char = player.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then hum.Jump = true end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.05)
+        local char = player.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if ch.Speed and hum then hum.WalkSpeed = ch.SpeedValue end
+            if ch.Jump  and hum then hum.JumpPower = ch.JumpValue end
+            if ch.NoClip then
+                for _, p in ipairs(char:GetDescendants()) do
+                    if p:IsA("BasePart") then p.CanCollide = false end
+                end
+            end
+            if ch.Fly and hrp then
+                local bv = hrp:FindFirstChild("AxxFlyBV")
+                local bg = hrp:FindFirstChild("AxxFlyBG")
+                if bv and bg and camera then
+                    local move = Vector3.zero
+                    if UserInputService:IsKeyDown(Enum.KeyCode.W)         then move = move + camera.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.S)         then move = move - camera.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.A)         then move = move - camera.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.D)         then move = move + camera.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.Space)     then move = move + Vector3.new(0,1,0) end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0,1,0) end
+                    bv.Velocity = move * ch.FlySpeed
+                    bg.CFrame = camera.CFrame
+                end
+            end
+        end
+    end
+end)
+
+persistToggle("Cheat_Speed", TogSpeed, function() return AxxState.Cheats.Speed end)
+persistSlider("Cheat_SpeedValue", SliSpeed, function() return AxxState.Cheats.SpeedValue end)
+persistToggle("Cheat_Jump", TogJump, function() return AxxState.Cheats.Jump end)
+persistSlider("Cheat_JumpValue", SliJump, function() return AxxState.Cheats.JumpValue end)
+persistToggle("Cheat_InfJump", TogInfJump, function() return AxxState.Cheats.InfJump end)
+persistToggle("Cheat_Fly", TogFly, function() return AxxState.Cheats.Fly end)
+persistSlider("Cheat_FlySpeed", SliFlySpeed, function() return AxxState.Cheats.FlySpeed end)
+persistToggle("Cheat_NoClip", TogNoClip, function() return AxxState.Cheats.NoClip end)
+
+local BTN_SIZE = 56
+local ICON_OFF = Color3.fromRGB(235,235,245)
+local BG_OFF   = Color3.fromRGB(18,18,26)
+local BG_ON    = Color3.fromRGB(30,18,55)
+local TI = TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
+local floatGui = Instance.new("ScreenGui")
+floatGui.Name = "AxxHub_FloatingButtons"
+floatGui.ResetOnSpawn = false
+floatGui.IgnoreGuiInset = true
+floatGui.DisplayOrder = 1000
+floatGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+floatGui.Enabled = false
+floatGui.Parent = playerGui
+
+local function tween(obj, props, info) TweenService:Create(obj, info or TI, props):Play() end
+
+local function viewport()
+    local vp = floatGui.AbsoluteSize
+    if vp.X < 10 then local cam = workspace.CurrentCamera; vp = cam and cam.ViewportSize or Vector2.new(800,600) end
+    return vp
+end
+
+local function clampPos(x, y)
+    local vp = viewport()
+    return math.clamp(x, 0, math.max(0, vp.X - BTN_SIZE)), math.clamp(y, 0, math.max(0, vp.Y - BTN_SIZE))
+end
+
+local function makeIconKit(holder, paints)
+    local function F(x, y, w, h, round, noPaint)
+        local f = Instance.new("Frame")
+        f.BorderSizePixel = 0; f.BackgroundColor3 = ICON_OFF
+        f.Position = UDim2.fromOffset(x, y); f.Size = UDim2.fromOffset(w, h)
+        if round then local c = Instance.new("UICorner"); c.CornerRadius = round == true and UDim.new(1,0) or UDim.new(0, round); c.Parent = f end
+        f.Parent = holder
+        if not noPaint then paints[#paints+1] = { f, "BackgroundColor3" } end
+        return f
+    end
+    local function R(x, y, w, h, thick)
+        local f = Instance.new("Frame")
+        f.BorderSizePixel = 0; f.BackgroundTransparency = 1
+        f.Position = UDim2.fromOffset(x, y); f.Size = UDim2.fromOffset(w, h)
+        local c = Instance.new("UICorner"); c.CornerRadius = UDim.new(1,0); c.Parent = f
+        local s = Instance.new("UIStroke"); s.Color = ICON_OFF; s.Thickness = thick; s.Parent = f
+        f.Parent = holder
+        paints[#paints+1] = { s, "Color" }
+        return f
+    end
+    return F, R
+end
+
+local Icons = {
+    Aim    = function(F,R) R(2,2,26,26,2.2); F(13,0,2,7); F(13,23,2,7); F(0,13,7,2); F(23,13,7,2); F(12.5,12.5,5,5,true) end,
+    ESP    = function(F,R) R(0,6,30,18,2.4); F(11,11,8,8,true) end,
+    Speed  = function(F,R) F(2,5,12,3,1); F(2,13,14,3,1); F(2,21,16,3,1); F(18,5,10,3,1); F(20,13,8,3,1); F(22,21,6,3,1) end,
+    Fly    = function(F,R) F(13,3,4,22); F(8,3,14,4,1); F(4,10,8,3); F(18,10,8,3); F(2,16,10,3); F(18,16,10,3) end,
+}
+
+local defs = {
+    { Name = "Aim",    StateGet = function() return AxxState.Aim.Enabled end },
+    { Name = "ESP",    StateGet = function() return AxxState.ESP.Enabled end },
+    { Name = "Speed",  StateGet = function() return AxxState.Cheats.Speed end },
+    { Name = "Fly",    StateGet = function() return AxxState.Cheats.Fly end },
+}
+
+local function toggleThing(def)
+    local cur = def.StateGet()
+    local tog = AxxToggles[def.Name]
+    if tog and type(tog.Set) == "function" then
+        local ok = pcall(function() tog:Set(not cur) end)
+        if ok then return end
+    end
+    if def.Name == "Aim" then AxxState.Aim.Enabled = not cur
+    elseif def.Name == "ESP" then AxxState.ESP.Enabled = not cur
+    elseif def.Name == "Speed" then AxxState.Cheats.Speed = not cur
+    elseif def.Name == "Fly" then AxxState.Cheats.Fly = not cur end
+end
+
+local buttons = {}
+local function createButton(def, index)
+    local btn = Instance.new("TextButton")
+    btn.Name = def.Name; btn.Text = ""; btn.AutoButtonColor = false; btn.Active = true
+    btn.BorderSizePixel = 0; btn.BackgroundColor3 = BG_OFF; btn.BackgroundTransparency = 0.12
+    btn.Size = UDim2.fromOffset(BTN_SIZE, BTN_SIZE); btn.Parent = floatGui
+    local corner = Instance.new("UICorner"); corner.CornerRadius = UDim.new(0,16); corner.Parent = btn
+    local stroke = Instance.new("UIStroke"); stroke.Color = Color3.new(1,1,1); stroke.Transparency = 0.75; stroke.Thickness = 1.5; stroke.Parent = btn
+    local scale = Instance.new("UIScale"); scale.Scale = 1; scale.Parent = btn
+    local holder = Instance.new("Frame"); holder.BackgroundTransparency = 1; holder.AnchorPoint = Vector2.new(0.5,0.5); holder.Position = UDim2.fromScale(0.5,0.5); holder.Size = UDim2.fromOffset(30,30); holder.Parent = btn
+    local paints = {}
+    local F, R = makeIconKit(holder, paints)
+    Icons[def.Name](F, R)
+    local function goHome()
+        local vp = viewport()
+        local x, y = clampPos(vp.X - BTN_SIZE - 16, vp.Y * 0.28 + (index-1) * (BTN_SIZE+10))
+        btn.Position = UDim2.fromOffset(x, y)
+    end
+    goHome()
+    local isOn = nil
+    local function setVisual(on, instant)
+        if isOn == on then return end
+        local first = isOn == nil; isOn = on
+        local info = (instant or first) and TweenInfo.new(0) or TI
+        tween(btn, { BackgroundColor3 = on and BG_ON or BG_OFF, BackgroundTransparency = on and 0.05 or 0.12 }, info)
+        tween(stroke, { Color = on and ACCENT or Color3.new(1,1,1), Transparency = on and 0 or 0.75, Thickness = on and 2.5 or 1.5 }, info)
+        for _, p in ipairs(paints) do tween(p[1], { [p[2]] = on and ACCENT2 or ICON_OFF }, info) end
+        if not instant and not first then
+            tween(scale, { Scale = 1.14 }, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out))
+            task.delay(0.1, function() tween(scale, { Scale = 1 }, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)) end)
+        end
+    end
+    local dragging, moved = false, false
+    local dragInput, startMouse, startPos
+    btn.InputBegan:Connect(function(input)
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+        dragging, moved = true, false
+        dragInput = input
+        startMouse = Vector2.new(input.Position.X, input.Position.Y)
+        startPos   = Vector2.new(btn.Position.X.Offset, btn.Position.Y.Offset)
+        tween(scale, { Scale = 0.9 }, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out))
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then return end
+        if input ~= dragInput and input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
+        local delta = Vector2.new(input.Position.X, input.Position.Y) - startMouse
+        if not moved and delta.Magnitude > 7 then moved = true; tween(scale, { Scale = 1.08 }, TweenInfo.new(0.12)) end
+        if moved then local x, y = clampPos(startPos.X + delta.X, startPos.Y + delta.Y); btn.Position = UDim2.fromOffset(x, y) end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if not dragging or input ~= dragInput then return end
+        dragging = false
+        tween(scale, { Scale = 1 }, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out))
+        if not moved then toggleThing(def); task.wait(0.03); setVisual(def.StateGet() == true) end
+    end)
+    setVisual(def.StateGet() == true, true)
+    return {
+        Sync = function() setVisual(def.StateGet() == true) end,
+        Reclamp = function() local x, y = clampPos(btn.Position.X.Offset, btn.Position.Y.Offset); btn.Position = UDim2.fromOffset(x, y) end,
+        Home = goHome,
+        SetVisible = function(v) btn.Visible = v end,
+    }
+end
+
+for i, def in ipairs(defs) do buttons[#buttons+1] = createButton(def, i) end
+
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        if floatGui.Enabled then for _, b in ipairs(buttons) do b.Sync() end end
+    end
+end)
+
+floatGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+    for _, b in ipairs(buttons) do b.Reclamp() end
+end)
+
+tabBotones:Section({ Title = "Botones Flotantes", Icon = "solar:gamepad-bold" })
+local TogFloat = tabBotones:Toggle({
+    Title = "Mostrar botones flotantes", Value = false,
+    Callback = function(v)
+        floatGui.Enabled = v
+        if v then for _, b in ipairs(buttons) do b:Sync() end end
+    end,
+})
+
+local floatLabels = { Aim="Aim", ESP="ESP", Speed="Speed", Fly="Fly" }
+local floatSelected = { "Todos" }
+
+local function applyFloatSelection(list)
+    local set, all = {}, false
+    if type(list) == "string" then list = { list } end
+    local normalized = {}
+    for _, v in ipairs(list or {}) do
+        local name = type(v) == "table" and v.Title or tostring(v)
+        normalized[#normalized+1] = name
+        if name == "Todos" then all = true end
+        set[name] = true
+    end
+    floatSelected = normalized
+    for i, def in ipairs(defs) do buttons[i].SetVisible(all or set[floatLabels[def.Name]] == true) end
+end
+
+local DropFloat = tabBotones:Dropdown({
+    Title = "Botones a mostrar",
+    Values = { "Todos", "Aim", "ESP", "Speed", "Fly" },
+    Value = { "Todos" }, Multi = true,
+    Callback = function(v) applyFloatSelection(v) end,
+})
+
+tabBotones:Button({
+    Title = "Restablecer posiciones", Icon = "solar:refresh-bold",
+    Callback = function()
+        for _, b in ipairs(buttons) do b.Home() end
+        playSound(SFX.CLICK, 0.5, 1.2)
+    end,
+})
+
+persistToggle("Float_Enabled", TogFloat, function() return floatGui.Enabled end)
+persist("Float_Selected", function() return floatSelected end, function(v)
+    applyFloatSelection(v)
+end)
+
+-- ============================================================
+--  MÚSICA (integrado de HIGHT Hub)
+-- ============================================================
+local Songs = {
+    {Name="Canción 1",Id="84944985070181"},{Name="Canción 2",Id="87570666848900"},
+    {Name="Canción 3",Id="82746224492420"},{Name="Canción 4",Id="71393805905055"},
+    {Name="Canción 5",Id="75688616622595"},{Name="Canción 6",Id="135609653444873"},
+    {Name="Canción 7",Id="93699644879957"},{Name="Canción 8",Id="110398343528156"},
+    {Name="Canción 9",Id="138863509657081"},{Name="Canción 10",Id="115440201770223"},
+    {Name="Canción 11",Id="128048502331483"},{Name="Canción 12",Id="135321902579514"},
+    {Name="Canción 13",Id="131465489873214"},
+}
+
+local AxxMusic = SoundService:FindFirstChild("AxxHub_MusicPlayer")
+if not AxxMusic then
+    AxxMusic = Instance.new("Sound")
+    AxxMusic.Name = "AxxHub_MusicPlayer"
+    AxxMusic.Volume = 0.5
+    AxxMusic.Parent = SoundService
+end
+
+local musicState = { CurrentIndex = 1, Shuffle = false, Repeat = false, CustomId = "" }
+
+local function getSongNames()
+    local n = {}
+    for i, s in ipairs(Songs) do n[i] = s.Name end
+    return n
+end
+
+local DropSongs
+
+local function playSong(index)
+    local song = Songs[index]
+    if not song then return end
+    musicState.CurrentIndex = index
+    AxxMusic:Stop()
+    AxxMusic.SoundId = "rbxassetid://" .. song.Id
+    AxxMusic.TimePosition = 0
+    AxxMusic:Play()
+    pcall(function() DropSongs:Set(song.Name) end)
+    WindUI:Notify({
+        Title = "♪ Reproduciendo",
+        Content = song.Name,
+        Icon = "solar:music-note-bold",
+        Duration = 2,
+    })
+end
+
+local function nextSong()
+    if musicState.Shuffle then
+        playSong(math.random(1, #Songs))
+    else
+        playSong(musicState.CurrentIndex % #Songs + 1)
+    end
+end
+
+local function prevSong()
+    local idx = musicState.CurrentIndex - 1
+    if idx < 1 then idx = #Songs end
+    playSong(idx)
+end
+
+DropSongs = tabMusic:Dropdown({
+    Title = "Lista de Canciones",
+    Desc = "Selecciona una canción para reproducirla",
+    Values = getSongNames(),
+    Value = Songs[1].Name,
+    Callback = function(v)
+        for i, s in ipairs(Songs) do
+            if s.Name == v then playSong(i); break end
+        end
+    end,
+})
+
+tabMusic:Section({ Title = "Controles", Icon = "solar:play-bold" })
+tabMusic:Button({ Title="▶ Reproducir / Reanudar", Icon="solar:play-bold", Callback=function()
+    if AxxMusic.SoundId == "" or AxxMusic.SoundId == nil then
+        playSong(musicState.CurrentIndex)
+    elseif not AxxMusic.IsPlaying then
+        AxxMusic:Resume()
+    end
+end })
+
+tabMusic:Button({ Title="Ⅱ Pausar", Icon="solar:pause-bold", Callback=function() AxxMusic:Pause() end })
+tabMusic:Button({ Title="■ Detener", Icon="solar:stop-bold", Callback=function() AxxMusic:Stop() end })
+tabMusic:Button({ Title="◀ Anterior", Icon="solar:skip-previous-bold", Callback=prevSong })
+tabMusic:Button({ Title="Siguiente ▶", Icon="solar:skip-next-bold", Callback=nextSong })
+
+local TogShuffle = tabMusic:Toggle({
+    Title = "Aleatorio", Desc = "Reproduce canciones al azar", Value = false,
+    Callback = function(v) musicState.Shuffle = v end,
+})
+
+local TogRepeat = tabMusic:Toggle({
+    Title = "Repetir", Desc = "Repite la canción actual en bucle", Value = false,
+    Callback = function(v) musicState.Repeat = v; AxxMusic.Looped = v end,
+})
+
+tabMusic:Section({ Title = "Volumen", Icon = "solar:volume-loud-bold" })
+local SliVol = tabMusic:Slider({
+    Title = "Volumen",
+    Value = { Min = 0, Max = 100, Default = 50 },
+    Step = 1,
+    Callback = function(v) AxxMusic.Volume = math.clamp(v / 100, 0, 1) end,
+})
+
+tabMusic:Section({ Title = "Música Personalizada", Icon = "solar:music-library-bold" })
+tabMusic:Input({
+    Title = "ID de Audio",
+    Desc = "Introduce el ID de Roblox",
+    Value = "",
+    Placeholder = "Ej: 123456789",
+    Callback = function(v) musicSta
+... (Tiempo restante: 10 KB)
